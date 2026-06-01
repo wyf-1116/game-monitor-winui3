@@ -1,0 +1,28 @@
+{
+  "host": "127.0.0.1",
+  "port": 8765,
+  "refresh_interval_ms": 1000,
+  "fps_source": "afterburner",
+  "fallback_to_rtss": false,
+  "language": "zh",
+  "temperature_unit": "C",
+  "display_items": [
+    "fps_current",
+    "frame_time",
+    "fps_1_low",
+    "fps_average",
+    "cpu_frequency",
+    "cpu_usage",
+    "cpu_temperature",
+    "cpu_power",
+    "gpu_frequency",
+    "gpu_memory_frequency",
+    "gpu_usage",
+    "gpu_temperature",
+    "gpu_power",
+    "gpu_memory_usage",
+    "gpu_fan_speed",
+    "memory_usage"
+  ],
+  "sensor_labels": []
+}
