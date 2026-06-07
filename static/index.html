@@ -8,37 +8,39 @@
   </head>
   <body>
     <main class="screen">
-      <header class="topbar">
-        <div class="device-stack">
-          <div class="device-row" id="cpuDevice">
-            <img id="cpuLogo" class="device-logo" alt="">
-            <div>
-              <p class="device-label">CPU</p>
-              <h1 id="cpuName">CPU</h1>
+      <div class="primary-panel">
+        <header class="topbar">
+          <div class="device-stack">
+            <div class="device-row" id="cpuDevice">
+              <img id="cpuLogo" class="device-logo" alt="">
+              <div>
+                <p class="device-label">CPU</p>
+                <h1 id="cpuName">CPU</h1>
+              </div>
+            </div>
+            <div class="device-row" id="gpuDevice">
+              <img id="gpuLogo" class="device-logo" alt="">
+              <div>
+                <p class="device-label">GPU</p>
+                <h1 id="gpuName">GPU</h1>
+              </div>
             </div>
           </div>
-          <div class="device-row" id="gpuDevice">
-            <img id="gpuLogo" class="device-logo" alt="">
-            <div>
-              <p class="device-label">GPU</p>
-              <h1 id="gpuName">GPU</h1>
-            </div>
-          </div>
-        </div>
-        <button id="settingsButton" class="icon-button" type="button" title="设置" aria-label="设置">⚙</button>
-      </header>
+          <button id="settingsButton" class="icon-button" type="button" title="设置" aria-label="设置">⚙</button>
+        </header>
 
-      <section class="fps-panel">
-        <div class="fps-value">
-          <span id="fpsValue">--</span>
-          <small>FPS</small>
-        </div>
-        <div class="fps-meta">
-          <span id="frameTime">帧生成 --</span>
-          <span id="lowFps">1% Low --</span>
-          <span id="avgFps">平均 --</span>
-        </div>
-      </section>
+        <section class="fps-panel">
+          <div class="fps-value">
+            <span id="fpsValue">--</span>
+            <small>FPS</small>
+          </div>
+          <div class="fps-meta">
+            <span id="frameTime">帧生成 --</span>
+            <span id="lowFps">1% Low --</span>
+            <span id="avgFps">平均 --</span>
+          </div>
+        </section>
+      </div>
 
       <section id="sensorGrid" class="sensor-grid"></section>
 

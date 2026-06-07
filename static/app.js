@@ -174,24 +174,64 @@ function renderSensors(sensors) {
 
 function fitLayout() {
   const screen = document.querySelector(".screen");
+  const primaryPanel = document.querySelector(".primary-panel");
+  const fpsPanel = document.querySelector(".fps-panel");
   const visibleCards = elements.sensorGrid.querySelectorAll(".sensor-card").length;
   const root = document.documentElement;
-  const useThreeColumns = visibleCards >= 7 && window.innerWidth >= 760;
+  const isLandscape = window.innerWidth / window.innerHeight > 1;
+  screen.dataset.layout = isLandscape ? "landscape" : "portrait";
+
+  root.style.removeProperty("--ui-scale");
+  root.style.removeProperty("--fps-scale");
+  root.style.removeProperty("--card-scale");
+  root.style.removeProperty("--device-name-scale");
+  root.style.removeProperty("--sensor-label-scale");
+  root.style.removeProperty("--card-row-height");
+
+  const sensorWidth = elements.sensorGrid.clientWidth || window.innerWidth;
+  const sensorHeight = elements.sensorGrid.clientHeight || window.innerHeight;
+  const useThreeColumns = visibleCards >= 7 && sensorWidth >= (isLandscape ? 720 : 760);
   elements.sensorGrid.dataset.columns = useThreeColumns ? "3" : "2";
 
   const columnCount = useThreeColumns ? 3 : 2;
   const rowCount = Math.max(1, Math.ceil(visibleCards / columnCount));
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-  const viewportScale = clamp(Math.min(window.innerHeight / 1272, window.innerWidth / 916), 0.42, 1.6);
-  const preferredRowHeight = clamp(window.innerHeight * 0.1, 108, 220);
+  const layoutWidth = isLandscape ? primaryPanel.clientWidth : window.innerWidth;
+  const layoutHeight = isLandscape ? primaryPanel.clientHeight : window.innerHeight;
+  const viewportScale = clamp(Math.min(layoutHeight / 1272, layoutWidth / 916), 0.34, 1.6);
+  const availableCardHeight = Math.max(1, sensorHeight - Math.max(0, rowCount - 1) * 18);
+  const preferredRowHeight = clamp(
+    isLandscape ? availableCardHeight / rowCount : window.innerHeight * 0.1,
+    92,
+    220,
+  );
   const preferredCardScale = clamp(preferredRowHeight / 128, 0.72, 1.45);
-  const preferredFpsScale = clamp(window.innerHeight / 1272, 0.62, 1.55);
+  const preferredFpsScale = clamp(layoutHeight / 1272, 0.52, 1.55);
 
   const setScale = (uiScale, fpsScale, cardScale, rowHeight) => {
     root.style.setProperty("--ui-scale", String(uiScale));
     root.style.setProperty("--fps-scale", String(fpsScale));
     root.style.setProperty("--card-scale", String(cardScale));
     root.style.setProperty("--card-row-height", `${Math.round(rowHeight)}px`);
+
+    if (isLandscape) {
+      root.style.setProperty("--device-name-scale", "1");
+      root.style.setProperty("--sensor-label-scale", "1");
+
+      const fitSingleLineGroup = (selector, property, minimumScale) => {
+        const items = [...document.querySelectorAll(selector)];
+        const requiredScale = items.reduce((scale, item) => {
+          if (item.scrollWidth <= item.clientWidth) {
+            return scale;
+          }
+          return Math.min(scale, (item.clientWidth / item.scrollWidth) * 0.98);
+        }, 1);
+        root.style.setProperty(property, String(clamp(requiredScale, minimumScale, 1)));
+      };
+
+      fitSingleLineGroup(".device-row h1", "--device-name-scale", 0.62);
+      fitSingleLineGroup(".sensor-label", "--sensor-label-scale", 0.58);
+    }
   };
 
   setScale(Math.min(1, viewportScale), preferredFpsScale, preferredCardScale, preferredRowHeight);
@@ -207,15 +247,16 @@ function fitLayout() {
       screen.scrollHeight <= window.innerHeight &&
       screen.scrollWidth <= window.innerWidth &&
       elements.sensorGrid.scrollHeight <= elements.sensorGrid.clientHeight + 1 &&
-      document.querySelector(".fps-panel").clientHeight >= 120
+      fpsPanel.scrollHeight <= fpsPanel.clientHeight + 1 &&
+      fpsPanel.clientHeight >= (isLandscape ? 90 : 120)
     );
   };
 
   const uiSteps = [Math.min(1, viewportScale), 1, 0.94, 0.88, 0.82, 0.76, 0.7, 0.64, 0.58, 0.52, 0.46, 0.4, 0.34]
     .filter((scale, index, values) => scale <= 1 && scale >= 0.34 && values.indexOf(scale) === index)
     .sort((a, b) => b - a);
-  const rowSteps = [preferredRowHeight, 200, 184, 168, 152, 136, 124, 112, 100, 92]
-    .filter((height, index, values) => height >= 92 && height <= preferredRowHeight && values.indexOf(height) === index)
+  const rowSteps = [preferredRowHeight, 220, 200, 184, 168, 152, 136, 124, 112, 100, 92, 82, 72]
+    .filter((height, index, values) => height >= 72 && height <= preferredRowHeight && values.indexOf(height) === index)
     .sort((a, b) => b - a);
 
   for (const uiScale of uiSteps) {
@@ -230,7 +271,7 @@ function fitLayout() {
     }
   }
 
-  setScale(0.34, 0.6, 0.62, 92);
+  setScale(0.34, isLandscape ? 0.48 : 0.6, 0.62, isLandscape ? 72 : 92);
   if (!fits() && visibleCards >= 9) {
     elements.sensorGrid.dataset.columns = "3";
     setScale(0.34, 0.52, 0.62, 92);
@@ -461,4 +502,5 @@ elements.saveSettings.addEventListener("click", () => {
 
 window.addEventListener("resize", fitLayout);
 
+fitLayout();
 update();
