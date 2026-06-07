@@ -3,6 +3,8 @@
   --ui-scale: 1;
   --fps-scale: 1;
   --card-scale: 1;
+  --device-name-scale: 1;
+  --sensor-label-scale: 1;
   --card-row-height: 128px;
   --bg: #080a0d;
   --panel: #141920;
@@ -42,6 +44,12 @@ select {
   grid-template-rows: auto minmax(0, 1fr) auto auto;
   gap: calc(clamp(18px, 2vh, 56px) * var(--ui-scale));
   overflow: hidden;
+}
+
+.primary-panel {
+  min-width: 0;
+  min-height: 0;
+  display: contents;
 }
 
 .topbar,
@@ -346,6 +354,62 @@ h1 {
   background: var(--accent);
   color: #04100b;
   font-weight: 700;
+}
+
+.screen[data-layout="landscape"] {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.screen[data-layout="landscape"] .primary-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: calc(clamp(14px, 1.5vh, 34px) * var(--ui-scale));
+  overflow: hidden;
+}
+
+.screen[data-layout="landscape"] .topbar {
+  min-height: 0;
+}
+
+.screen[data-layout="landscape"] h1 {
+  overflow: hidden;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: calc(clamp(26px, 2vw, 58px) * var(--ui-scale) * var(--device-name-scale));
+}
+
+.screen[data-layout="landscape"] .fps-panel {
+  min-height: 0;
+}
+
+.screen[data-layout="landscape"] .sensor-grid {
+  height: 100%;
+  grid-auto-rows: minmax(0, 1fr);
+  align-content: stretch;
+}
+
+.screen[data-layout="landscape"] .sensor-value {
+  overflow: hidden;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: calc(clamp(24px, 1.65vw, 48px) * var(--ui-scale));
+}
+
+.screen[data-layout="landscape"] .sensor-label {
+  overflow: hidden;
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: calc(
+    clamp(18px, 1.15vw, 34px) * var(--ui-scale) * var(--card-scale) * var(--sensor-label-scale)
+  );
+}
+
+.screen[data-layout="landscape"] .statusbar {
+  grid-column: 1 / -1;
 }
 
 @media (max-aspect-ratio: 3 / 4) {

@@ -1,6 +1,6 @@
 # Game Monitor
 
-Portrait 4K hardware and FPS monitor for a secondary Windows display.
+Adaptive hardware and FPS monitor for portrait and landscape secondary Windows displays.
 
 中文说明见 [README.zh-CN.md](README.zh-CN.md).
 
@@ -25,7 +25,7 @@ Double-click `Start-Monitor.bat`, then open:
 http://127.0.0.1:8765
 ```
 
-Move the browser window to the secondary portrait 4K display and press `F11` for fullscreen.
+Move the browser window to the secondary display and press `F11` for fullscreen.
 
 ## Configure
 
@@ -44,4 +44,5 @@ Settings are stored in `config.json`.
 - `1% Low` and average FPS use MSI Afterburner's own monitoring values when available; otherwise they are estimated from recent FPS samples.
 - `Frametime` is shown as frame generation time and can also be used to derive current FPS when Afterburner does not expose a direct framerate sensor.
 - Hardware cards are limited to CPU frequency, CPU usage, CPU temperature, CPU power, GPU frequency, VRAM frequency, GPU usage, GPU temperature, GPU power, VRAM usage, and memory usage.
-- The layout is designed for a 2160 x 3840 portrait display but remains usable on smaller screens for setup.
+- Windows with an aspect ratio greater than 1 use a landscape layout: CPU, GPU, and FPS information appear on the left, while hardware monitoring cards appear on the right. Other aspect ratios use the portrait layout.
+- Both layouts scale automatically and switch between two and three hardware-card columns based on the number of items and available width.
