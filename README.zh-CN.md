@@ -1,69 +1,56 @@
 # Game Monitor
 
-用于副显示器的自适应硬件监控和游戏帧率面板，支持纵向和横向屏幕。
+基于 WinUI 3 的 Windows 原生硬件与帧率监控应用，适合放在横向或纵向副显示器上。
 
-English documentation: [README.md](README.md)
+## 架构
 
-## 依赖软件
+- 单进程 WinUI 3 桌面应用。
+- 直接读取 MSI Afterburner 的 `MAHMSharedMemory` 命名共享内存。
+- 不运行 Python，不启动 HTTP 服务，不监听端口，也不需要浏览器。
+- 使用 Windows App SDK 2.2 和 WinUI 原生 `TitleBar` 控件。
+- 使用系统 caption controls、Mica、主题色、高对比度和系统缩放行为。
 
-安装并运行：
+## 依赖
 
-1. **MSI Afterburner**
-   - 官方下载页面：[MSI Afterburner](https://www.msi.com/Landing/afterburner)。
-   - 建议只从 `msi.com` 官方页面下载 MSI Afterburner。
-   - 启动游戏前先运行 MSI Afterburner。
-   - 在 MSI Afterburner 的 `Monitoring` 里启用你想监控的硬件项目。
-   - 如果要显示实时帧率、平均帧率和 1% Low，请在 `Monitoring` 里启用 `Framerate`、`Framerate Avg`、`Framerate 1% Low`。
+1. Windows 10 1809 或更高版本，推荐 Windows 11。
+2. .NET 8 SDK，仅从源码构建时需要。
+3. MSI Afterburner。
 
-本面板只读取 MSI Afterburner 的共享内存数据，不再依赖 AIDA64。
+请在 MSI Afterburner 的 `Monitoring` 页面启用需要显示的监控项。要显示帧率区域，请启用 `Framerate`、`Frametime`、`Framerate Avg` 和 `Framerate 1% Low` 中可用的项目。
 
-## 启动
+## 运行
 
-双击 `Start-Monitor.bat`，然后打开：
+双击：
 
 ```text
-http://127.0.0.1:8765
+Start-Monitor.bat
 ```
 
-把浏览器窗口移动到副屏，按 `F11` 全屏。
+脚本会在首次运行时发布自包含的 x64 应用，之后直接启动：
+
+```text
+bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\GameMonitor.exe
+```
+
+也可以在终端运行：
+
+```powershell
+dotnet run --project GameMonitor.csproj -p:Platform=x64
+```
 
 ## 设置
 
-点击右上角设置按钮：
+标题栏右侧提供全屏和设置按钮。设置包括：
 
-- 刷新间隔：设置数据刷新频率，单位为毫秒。
-- 温度单位：可在 `°C` 和 `°F` 之间切换，默认 `°C`。
-- 语言：可在中文和 English 之间切换。
-- 显示项目：可以开启或关闭 FPS 指标和 9 个硬件指标。
+- 刷新间隔
+- 摄氏度或华氏度
+- 中文或 English
+- FPS 与硬件监控项目的显示开关
 
-设置保存在 `config.json`。
+配置保存在：
 
-## 显示项目
+```text
+%LOCALAPPDATA%\GameMonitor\config.json
+```
 
-帧率区域：
-
-- 实时帧率
-- 帧生成时间
-- 1% Low 帧
-- 平均帧率
-
-硬件区域：
-
-- CPU 频率
-- CPU 占用率
-- CPU 温度
-- CPU 功率
-- 显卡频率
-- 显卡占用率
-- 显卡温度
-- 显卡功率
-- 内存占用，格式为 `已用 / 总量`
-
-## 说明
-
-- 如果 MSI Afterburner 没有运行，硬件数据会显示为不可用。
-- 如果 MSI Afterburner 没有暴露帧率监控项，FPS、平均帧率和 1% Low 会显示为不可用。
-- `1% Low` 和平均帧率会优先使用 MSI Afterburner 的原生监控值；如果没有原生值，则根据近期 FPS 采样估算。
-- `Frametime` 会作为帧生成时间显示；当 Afterburner 没有直接暴露帧率时，也可用它推算当前 FPS。
-- 窗口长宽比大于 1 时使用横向布局：CPU、GPU 和帧率信息位于左侧，硬件监控数据位于右侧；其他情况使用纵向布局。
-- 两种布局都会根据窗口大小自动缩放，并根据硬件监控项目数量和可用宽度切换两列/三列。
+应用不会修改 MSI Afterburner 配置，只读取其共享内存。如果 Afterburner 未运行或没有启用对应监控项，相关值会显示为不可用。

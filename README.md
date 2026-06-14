@@ -1,48 +1,58 @@
 # Game Monitor
 
-Adaptive hardware and FPS monitor for portrait and landscape secondary Windows displays.
+Native WinUI 3 hardware and frame-rate monitor for portrait or landscape secondary Windows displays.
 
 中文说明见 [README.zh-CN.md](README.zh-CN.md).
 
-## Required companion software
+## Architecture
 
-Install and run:
+- Single-process WinUI 3 desktop application.
+- Reads MSI Afterburner's `MAHMSharedMemory` named shared memory directly.
+- No Python process, HTTP server, listening port, browser, or WebView.
+- Uses Windows App SDK 2.2 and the native WinUI `TitleBar` control.
+- Uses system caption controls, Mica, theme resources, high contrast, and system scaling.
 
-1. **MSI Afterburner**
-   - Official download page: [MSI Afterburner](https://www.msi.com/Landing/afterburner).
-   - Download MSI Afterburner only from the official `msi.com` page.
-   - Run MSI Afterburner before launching games.
-   - In MSI Afterburner, enable the hardware monitoring items you want to track.
-   - Enable `Framerate`, `Framerate Avg`, and `Framerate 1% Low` in the Monitoring list if you want FPS, average FPS, and 1% Low.
+## Requirements
 
-The monitor reads hardware sensor data and FPS metrics from MSI Afterburner shared memory.
+1. Windows 10 version 1809 or later; Windows 11 is recommended.
+2. .NET 8 SDK, only when building from source.
+3. MSI Afterburner.
+
+Enable the desired sensors on MSI Afterburner's `Monitoring` page. For the FPS area, enable the available `Framerate`, `Frametime`, `Framerate Avg`, and `Framerate 1% Low` entries.
 
 ## Run
 
-Double-click `Start-Monitor.bat`, then open:
+Double-click:
 
 ```text
-http://127.0.0.1:8765
+Start-Monitor.bat
 ```
 
-Move the browser window to the secondary display and press `F11` for fullscreen.
+On first run, the script publishes a self-contained x64 build. Later runs start the native executable directly:
 
-## Configure
+```text
+bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\GameMonitor.exe
+```
 
-Use the settings button in the upper-right corner:
+From a terminal:
 
-- Refresh interval: controls polling frequency in milliseconds.
-- Display items: turn the FPS metrics and hardware metrics on or off. Hardware metrics can be reordered with the up/down buttons in Settings.
-- FPS: shown when MSI Afterburner exposes framerate monitoring values.
+```powershell
+dotnet run --project GameMonitor.csproj -p:Platform=x64
+```
 
-Settings are stored in `config.json`.
+## Settings
 
-## Notes
+The title bar provides full-screen and settings buttons. Settings include:
 
-- If MSI Afterburner is not running, hardware values will show as unavailable.
-- If the MSI Afterburner framerate monitoring items are disabled, FPS values will show as unavailable.
-- `1% Low` and average FPS use MSI Afterburner's own monitoring values when available; otherwise they are estimated from recent FPS samples.
-- `Frametime` is shown as frame generation time and can also be used to derive current FPS when Afterburner does not expose a direct framerate sensor.
-- Hardware cards are limited to CPU frequency, CPU usage, CPU temperature, CPU power, GPU frequency, VRAM frequency, GPU usage, GPU temperature, GPU power, VRAM usage, and memory usage.
-- Windows with an aspect ratio greater than 1 use a landscape layout: CPU, GPU, and FPS information appear on the left, while hardware monitoring cards appear on the right. Other aspect ratios use the portrait layout.
-- Both layouts scale automatically and switch between two and three hardware-card columns based on the number of items and available width.
+- Refresh interval
+- Celsius or Fahrenheit
+- Chinese or English
+- Visibility of FPS and hardware metrics
+
+Settings are stored at:
+
+```text
+%LOCALAPPDATA%\GameMonitor\config.json
+```
+
+The app does not modify MSI Afterburner. If Afterburner is not running or a monitoring entry is disabled, the corresponding value is unavailable.

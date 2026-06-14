@@ -1,13 +1,10 @@
 __pycache__/
 *.py[cod]
 
-.venv/
-venv/
-python/
-
-monitor.log
-monitor.err.log
 *.log
+bin/
+obj/
+.vs/
 
 .DS_Store
 Thumbs.db

@@ -1,0 +1,16 @@
+<Application
+    x:Class="GameMonitor.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Color x:Key="MonitorAccentColor">#46D3A3</Color>
+            <SolidColorBrush x:Key="MonitorAccentBrush" Color="{StaticResource MonitorAccentColor}"/>
+            <SolidColorBrush x:Key="CardBackgroundBrush" Color="#B3181D24"/>
+            <SolidColorBrush x:Key="CardBorderBrush" Color="#402F3742"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
