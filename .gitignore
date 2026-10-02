@@ -5,6 +5,8 @@ __pycache__/
 bin/
 obj/
 .vs/
+config.json
+storage-location.json
 
 .DS_Store
 Thumbs.db

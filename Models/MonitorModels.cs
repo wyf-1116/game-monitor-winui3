@@ -85,6 +85,12 @@ public sealed class DisplayItemOption : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 }
 
+public enum SettingsStorageLocation
+{
+    LocalAppData,
+    ProgramDirectory,
+}
+
 public sealed class AppSettings
 {
     public int RefreshIntervalMs { get; set; } = 1000;

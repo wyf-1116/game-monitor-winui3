@@ -16,6 +16,7 @@ public sealed partial class MainWindow : Window
     private readonly SettingsService _settingsService = new();
     private readonly MonitorService _monitorService = new();
     private readonly DispatcherTimer _timer = new();
+    private readonly string? _gpuName = GraphicsAdapterService.ReadName();
     private AppSettings _settings;
     private bool _isFullScreen;
 
@@ -35,9 +36,6 @@ public sealed partial class MainWindow : Window
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1180, 760));
 
         CpuNameText.Text = ReadCpuName();
-        GpuNameText.Text = _settings.Language == "en"
-            ? "Graphics processor data from MSI Afterburner"
-            : "显卡信息来自 MSI Afterburner";
 
         _timer.Tick += (_, _) => RefreshSnapshot();
         Closed += (_, _) => _timer.Stop();
@@ -150,28 +148,34 @@ public sealed partial class MainWindow : Window
         ContentDialog sender,
         ContentDialogButtonClickEventArgs args)
     {
-        _settings.RefreshIntervalMs = (int)Math.Clamp(
-            RefreshIntervalBox.Value,
-            250,
-            10_000);
-        _settings.TemperatureUnit = SelectedTag(TemperatureUnitBox, "C");
-        _settings.Language = SelectedTag(LanguageBox, "zh");
-        _settings.DisplayItems = DisplayOptions
-            .Where(option => option.IsEnabled)
-            .Select(option => option.Id)
-            .ToList();
+        var updatedSettings = new AppSettings
+        {
+            RefreshIntervalMs = double.IsFinite(RefreshIntervalBox.Value)
+                ? (int)Math.Clamp(RefreshIntervalBox.Value, 250, 10_000)
+                : _settings.RefreshIntervalMs,
+            TemperatureUnit = SelectedTag(TemperatureUnitBox, "C"),
+            Language = SelectedTag(LanguageBox, "zh"),
+            DisplayItems = DisplayOptions
+                .Where(option => option.IsEnabled)
+                .Select(option => option.Id)
+                .ToList(),
+        };
 
         try
         {
-            _settingsService.Save(_settings);
+            _settingsService.Save(updatedSettings, SelectedSettingsLocation());
         }
-        catch (IOException exception)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             args.Cancel = true;
-            StatusText.Text = exception.Message;
+            SettingsErrorText.Text = _settings.Language == "en"
+                ? $"Could not save configuration to the selected location. Check folder write permissions. {exception.Message}"
+                : $"无法将配置保存到所选位置，请检查目录写入权限。{exception.Message}";
+            SettingsErrorText.Visibility = Visibility.Visible;
             return;
         }
 
+        _settings = updatedSettings;
         ApplyLanguage();
         ResetTimer();
         RefreshSnapshot();
@@ -191,6 +195,9 @@ public sealed partial class MainWindow : Window
         RefreshIntervalBox.Value = _settings.RefreshIntervalMs;
         TemperatureUnitBox.SelectedIndex = _settings.TemperatureUnit == "F" ? 1 : 0;
         LanguageBox.SelectedIndex = _settings.Language == "en" ? 1 : 0;
+        SettingsLocationBox.SelectedIndex = _settingsService.StorageLocation == SettingsStorageLocation.ProgramDirectory ? 1 : 0;
+        SettingsPathText.Text = _settingsService.GetSettingsPath(SelectedSettingsLocation());
+        SettingsErrorText.Visibility = Visibility.Collapsed;
 
         var enabled = _settings.DisplayItems.ToHashSet(StringComparer.Ordinal);
         DisplayOptions.Clear();
@@ -208,11 +215,21 @@ public sealed partial class MainWindow : Window
     private void ApplyLanguage()
     {
         var english = _settings.Language == "en";
+        GpuNameText.Text = _gpuName ?? (english ? "GPU model unavailable" : "无法获取显卡型号");
         AppTitleBar.Subtitle = english ? "Direct shared-memory monitor" : "共享内存直读监控";
         SettingsDialog.Title = english ? "Settings" : "设置";
         SettingsDialog.PrimaryButtonText = english ? "Save" : "保存";
         SettingsDialog.CloseButtonText = english ? "Cancel" : "取消";
         RefreshLabel.Text = english ? "Refresh interval" : "刷新间隔";
+        RefreshIntervalBox.Header = english ? "Milliseconds" : "毫秒";
+        TemperatureUnitBox.Header = english ? "Temperature unit" : "温度单位";
+        CelsiusOption.Content = english ? "Celsius (°C)" : "摄氏度 (°C)";
+        FahrenheitOption.Content = english ? "Fahrenheit (°F)" : "华氏度 (°F)";
+        LanguageBox.Header = english ? "Language" : "语言";
+        ChineseOption.Content = english ? "Chinese" : "中文";
+        SettingsLocationBox.Header = english ? "Configuration location" : "配置保存位置";
+        LocalAppDataOption.Content = english ? "User folder (%LocalAppData%)" : "用户目录 (%LocalAppData%)";
+        ProgramDirectoryOption.Content = english ? "Program directory (EXE folder)" : "程序目录 (EXE 所在目录)";
         DisplayItemsLabel.Text = english ? "Display items" : "显示项目";
         SettingsButton.SetValue(ToolTipService.ToolTipProperty, english ? "Settings" : "设置");
         FullScreenButton.SetValue(ToolTipService.ToolTipProperty, english ? "Full screen" : "全屏");
@@ -223,6 +240,22 @@ public sealed partial class MainWindow : Window
         _timer.Stop();
         _timer.Interval = TimeSpan.FromMilliseconds(_settings.RefreshIntervalMs);
         _timer.Start();
+    }
+
+    private SettingsStorageLocation SelectedSettingsLocation() =>
+        SettingsLocationBox.SelectedIndex == 1
+            ? SettingsStorageLocation.ProgramDirectory
+            : SettingsStorageLocation.LocalAppData;
+
+    private void SettingsLocationBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (SettingsPathText is null || SettingsErrorText is null)
+        {
+            return;
+        }
+
+        SettingsPathText.Text = _settingsService.GetSettingsPath(SelectedSettingsLocation());
+        SettingsErrorText.Visibility = Visibility.Collapsed;
     }
 
     private static string SelectedTag(ComboBox comboBox, string fallback) =>

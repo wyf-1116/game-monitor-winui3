@@ -48,11 +48,20 @@ The title bar provides full-screen and settings buttons. Settings include:
 - Celsius or Fahrenheit
 - Chinese or English
 - Visibility of FPS and hardware metrics
+- Configuration location: user folder or program directory
 
-Settings are stored at:
+By default, settings are stored at:
 
 ```text
-%LOCALAPPDATA%\GameMonitor\config.json
+%LOCALAPPDATA%\GameMonitorWinUI3\config.json
 ```
+
+You can select **Program directory** in Settings to save `config.json` beside the running EXE. This means the executable directory, not the working directory or source directory. The dialog shows the full destination path. Saving copies the current settings to the selected location; subsequent saves and application launches use that location. The previous configuration file is retained.
+
+The location choice is remembered in `%LOCALAPPDATA%\GameMonitorWinUI3\storage-location.json`. If that record is missing or invalid, the app defaults to the user folder. If the selected configuration is missing or invalid, the app uses default settings at the selected location. The program directory must be writable to save there; a failed save leaves the active settings and location unchanged and displays an error in the dialog.
+
+The user directory is exclusive to the WinUI 3 app. The original Python project stores its configuration in its own project directory. Configurations from that project or the previous `%LOCALAPPDATA%\GameMonitor` directory are not imported automatically.
+
+CPU and GPU model names are read from Windows. If multiple display adapters are detected, their names are shown together, with the primary display adapter first; this does not change which Afterburner sensor is used for each metric.
 
 The app does not modify MSI Afterburner. If Afterburner is not running or a monitoring entry is disabled, the corresponding value is unavailable.

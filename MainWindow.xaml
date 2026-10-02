@@ -224,17 +224,36 @@
                         x:Name="TemperatureUnitBox"
                         Header="温度单位"
                         SelectedIndex="0">
-                        <ComboBoxItem Content="摄氏度 (°C)" Tag="C"/>
-                        <ComboBoxItem Content="华氏度 (°F)" Tag="F"/>
+                        <ComboBoxItem x:Name="CelsiusOption" Content="摄氏度 (°C)" Tag="C"/>
+                        <ComboBoxItem x:Name="FahrenheitOption" Content="华氏度 (°F)" Tag="F"/>
                     </ComboBox>
 
                     <ComboBox
                         x:Name="LanguageBox"
                         Header="语言"
                         SelectedIndex="0">
-                        <ComboBoxItem Content="中文" Tag="zh"/>
+                        <ComboBoxItem x:Name="ChineseOption" Content="中文" Tag="zh"/>
                         <ComboBoxItem Content="English" Tag="en"/>
                     </ComboBox>
+
+                    <ComboBox
+                        x:Name="SettingsLocationBox"
+                        Header="配置保存位置"
+                        SelectedIndex="0"
+                        SelectionChanged="SettingsLocationBox_SelectionChanged">
+                        <ComboBoxItem x:Name="LocalAppDataOption" Content="用户目录 (%LocalAppData%)"/>
+                        <ComboBoxItem x:Name="ProgramDirectoryOption" Content="程序目录 (EXE 所在目录)"/>
+                    </ComboBox>
+                    <TextBlock
+                        x:Name="SettingsPathText"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextWrapping="Wrap"
+                        IsTextSelectionEnabled="True"/>
+                    <TextBlock
+                        x:Name="SettingsErrorText"
+                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                        TextWrapping="Wrap"
+                        Visibility="Collapsed"/>
 
                     <TextBlock
                         x:Name="DisplayItemsLabel"

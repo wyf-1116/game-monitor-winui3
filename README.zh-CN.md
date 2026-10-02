@@ -46,11 +46,20 @@ dotnet run --project GameMonitor.csproj -p:Platform=x64
 - 摄氏度或华氏度
 - 中文或 English
 - FPS 与硬件监控项目的显示开关
+- 配置保存位置：用户目录或程序目录
 
-配置保存在：
+配置默认保存在：
 
 ```text
-%LOCALAPPDATA%\GameMonitor\config.json
+%LOCALAPPDATA%\GameMonitorWinUI3\config.json
 ```
+
+在设置中选择 **程序目录**，可以将 `config.json` 保存到正在运行的 EXE 所在目录；这不是工作目录或源码目录。设置窗口会显示完整目标路径。点击保存会将当前设置写入所选位置，此后的保存和重启读取均使用该位置，原位置的配置文件会保留。
+
+位置选择记录保存在 `%LOCALAPPDATA%\GameMonitorWinUI3\storage-location.json`。该记录不存在或损坏时，默认使用用户目录；所选位置的配置不存在或损坏时，使用默认设置，但仍保留所选位置。程序目录必须具备写入权限才能保存；保存失败时，会在设置窗口显示错误，当前生效设置和位置不会切换。
+
+用户目录仅供 WinUI 3 应用使用。原 Python 项目的配置位于其项目目录内。应用不会自动导入原项目或此前 `%LOCALAPPDATA%\GameMonitor` 目录中的配置。
+
+CPU 和 GPU 型号从 Windows 读取。检测到多个显示适配器时会同时显示其名称，主显示适配器排在前面；这不会改变各项指标使用的 Afterburner 传感器。
 
 应用不会修改 MSI Afterburner 配置，只读取其共享内存。如果 Afterburner 未运行或没有启用对应监控项，相关值会显示为不可用。
